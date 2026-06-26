@@ -19,7 +19,13 @@ Google Chat bot connected to ServiceNow Virtual Agent using the **native `sn_va_
   - **Google Chat API**
   - **Google Workspace Add-ons API** (creates the inbound service account automatically)
 
-### 3. GCP Chat API Configuration
+### 3. Now Virtual Agent Marketplace App
+- Install from: https://workspace.google.com/marketplace/app/now_virtual_agent/442468716736
+- Requires Google Workspace admin access to install for the domain
+- This is ServiceNow's official Google Chat bot. Once installed, it appears as "Now Virtual Agent" in Google Chat.
+- The self-configured bot (below) is a separate bot that uses your own GCP project and service accounts. Both can coexist.
+
+### 4. GCP Chat API Configuration (self-configured bot)
 Navigate: `https://console.cloud.google.com/apis/api/chat.googleapis.com/hangouts-chat?project=<GCP_PROJECT_ID>`
 
 | Setting | Value |
