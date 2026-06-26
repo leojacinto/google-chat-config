@@ -210,6 +210,35 @@ curl -u admin:password \
   "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_provider_application?sysparm_query=nameLIKE<BOT_NAME>&sysparm_fields=sys_id,name,active"
 ```
 
+**Configure VA Channel Integration settings:**
+
+The SN UI at `Conversation > Settings > VA Channel Integrations > Google Chat` may not work. These REST calls cover the same config:
+```bash
+# Check Google Chat channel is active
+curl -u admin:password \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_channel?sysparm_query=nameLIKEGoogle%20Chat&sysparm_fields=sys_id,name,active"
+
+# Check provider application is active and correctly configured
+curl -u admin:password \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_provider_application?sysparm_query=nameLIKE<BOT_NAME>&sysparm_fields=sys_id,name,active,inbound_id,link_account_enabled,automatic_link_enabled"
+
+# Disable account linking loop (optional, prevents redirect prompts for guests)
+curl -u admin:password -X PATCH \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_provider_application/<PROVIDER_APP_SYS_ID>" \
+  -H "Content-Type: application/json" \
+  -d '{"link_account_enabled":"false","automatic_link_enabled":"false"}'
+
+# Check context profiles (controls NLU vs GenAI vs keyword matching per channel)
+curl -u admin:password \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_context_profile?sysparm_query=active=true&sysparm_fields=sys_id,name,active,condition,model_type,order"
+
+# Deactivate a context profile that forces wrong model_type for Google Chat
+curl -u admin:password -X PATCH \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_context_profile/<PROFILE_SYS_ID>" \
+  -H "Content-Type: application/json" \
+  -d '{"active":"false"}'
+```
+
 **Set topic roles via REST:**
 ```bash
 # Update sys_cs_topic roles
