@@ -38,13 +38,13 @@ Navigate: `https://console.cloud.google.com/apis/api/chat.googleapis.com/hangout
 | Triggers | Use a common HTTP endpoint URL for all triggers |
 | Service account email | `service-<GCP_PROJECT_NUMBER>@gcp-sa-gsuiteaddons.iam.gserviceaccount.com` |
 
-### 4. GCP Service Accounts
+### 5. GCP Service Accounts
 | Purpose | Email |
 |---------|-------|
 | Inbound (Google to SN) | `service-<GCP_PROJECT_NUMBER>@gcp-sa-gsuiteaddons.iam.gserviceaccount.com` |
 | Outbound (SN to Google) | `<OUTBOUND_SA>@<GCP_PROJECT_ID>.iam.gserviceaccount.com` |
 
-### 5. Outbound P12 Key
+### 6. Outbound P12 Key
 - File: `<YOUR_P12_FILE>.p12`
 - Password: `<P12_PASSWORD>`
 - Uploaded to SN as attachment, sys_id: `<P12_ATTACHMENT_SYS_ID>`
@@ -156,8 +156,58 @@ Restore script: `../backup-marketplace-pivot/RESTORE.sh`
 
 ---
 
-## Instance
-Configure your instance URL and credentials in a `.env` file (not committed).
+## Setup for a New Instance
+
+Follow these steps to connect a different ServiceNow instance to Google Chat.
+
+### Step 1: GCP Setup
+1. Create a GCP project under a **Google Workspace** account (not personal Gmail)
+2. Enable **Google Chat API** and **Google Workspace Add-ons API**
+3. In the Chat API config, set:
+   - HTTP endpoint URL to `https://<YOUR_INSTANCE>.service-now.com/api/sn_va_google_chat/va_google_chat_inbound/events`
+   - Check **"Build this Chat app as a Workspace add-on"**
+   - Note the **service account email** shown (format: `service-<NUMBER>@gcp-sa-gsuiteaddons.iam.gserviceaccount.com`)
+4. Create a service account for outbound (SN to Google) calls
+5. Generate a P12 key for that outbound service account
+
+### Step 2: ServiceNow Setup
+1. Confirm the `sn_va_google_chat` plugin is active on the instance
+2. Upload the P12 key file as an attachment to any record (e.g. `sys_certificate`). Note the `sys_attachment` sys_id from the URL
+3. Call the install API (browser or REST client):
+```
+https://<YOUR_INSTANCE>.service-now.com/api/sn_va_google_chat/multi_instance_google_chat_bot_ui/installGoogleChatCustomBot/<BOT_NAME>/<INBOUND_SA_EMAIL>/<OUTBOUND_SA_EMAIL>/<P12_PASSWORD>/<P12_ATTACHMENT_SYS_ID>/false
+```
+4. Verify the install created records: check `sys_cs_provider_application`, `oauth_oidc_entity`, `jwt_keystore_aliases` for new entries matching your bot name
+
+### Step 3: Topic Setup
+1. Open VA Designer, find or create a topic
+2. Set roles to **public** (or appropriate role)
+3. **Publish** the topic (this regenerates `published_definition`)
+4. Test in VA Designer Test tool first, then Google Chat
+
+### Step 4: Verify
+1. Open Google Chat, find the bot by name
+2. Type "hi" - you should get the VA greeting
+3. Type a phrase matching your topic - it should trigger
+
+### Switching an Existing Bot to a New Instance
+If the bot was previously pointing to a different SN instance:
+1. Update the HTTP endpoint URL in GCP Chat API config to the new instance
+2. On the new SN instance, run `installGoogleChatCustomBot` with the same GCP service accounts
+3. If the install fails with conflicts, delete any existing `sys_cs_provider_application`, `oauth_oidc_entity`, `jwt_keystore_aliases`, `oidc_provider_configuration`, and `provider_auth` records that reference the old bot name or service accounts
+
+### .env File
+Store instance-specific values locally (do not commit):
+```
+SN_INSTANCE=https://<YOUR_INSTANCE>.service-now.com
+SN_USERNAME=<admin_user>
+GCP_PROJECT_ID=<your-project>
+GCP_PROJECT_NUMBER=<123456789>
+GCP_OUTBOUND_SA=<sa-name>@<project>.iam.gserviceaccount.com
+GCP_P12_FILE=<your-key>.p12
+GCP_P12_PASSWORD=<password>
+GCP_WORKSPACE_EMAIL=<admin@yourdomain.com>
+```
 
 ---
 
