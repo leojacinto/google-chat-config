@@ -8,7 +8,7 @@ Google Chat bot connected to ServiceNow Virtual Agent using the **native `sn_va_
 ## Prerequisites (done once, do not redo)
 
 ### 1. Google Workspace Domain
-- Domain: `<YOUR_WORKSPACE_DOMAIN>` (Google Workspace, NOT a personal Gmail)
+- Domain: `<YOUR_WORKSPACE_DOMAIN>` (Google Workspace, NOT tested on personal account)
 - Admin: `<WORKSPACE_ADMIN_EMAIL>`
 - **Why Workspace matters:** Personal Gmail GCP projects lock "Build as Workspace add-on" permanently ON and use a different service account format. A paid Workspace account is required for the self-configured bot path.
 
