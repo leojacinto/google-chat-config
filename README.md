@@ -178,6 +178,63 @@ If the bot was previously pointing to a different SN instance:
 2. On the new SN instance, run `installGoogleChatCustomBot` with the same GCP service accounts
 3. If the install fails with conflicts, delete any existing `sys_cs_provider_application`, `oauth_oidc_entity`, `jwt_keystore_aliases`, `oidc_provider_configuration`, and `provider_auth` records that reference the old bot name or service accounts
 
+### REST-Only Setup (when the SN Workspace UI doesn't work)
+
+The ServiceNow Google Chat setup UI (`All > Virtual Agent > Google Chat Bots`) is broken on some instances. Everything can be done via REST instead.
+
+**Upload P12 key:**
+```bash
+# Create a sys_certificate record first
+curl -u admin:password -X POST \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_certificate" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Google Chat Outbound Key","type":"key_store"}'
+# Note the sys_id from the response, then upload the P12 as an attachment
+curl -u admin:password -X POST \
+  "https://<INSTANCE>.service-now.com/api/now/attachment/file?table_name=sys_certificate&table_sys_id=<CERT_SYS_ID>&file_name=outbound.p12" \
+  -H "Content-Type: application/x-pkcs12" \
+  --data-binary @outbound.p12
+# Note the sys_id from the attachment response - this is your P12_ATTACHMENT_SYS_ID
+```
+
+**Install bot:**
+```bash
+curl -u admin:password \
+  "https://<INSTANCE>.service-now.com/api/sn_va_google_chat/multi_instance_google_chat_bot_ui/installGoogleChatCustomBot/<BOT_NAME>/<INBOUND_SA>/<OUTBOUND_SA>/<P12_PASSWORD>/<P12_ATTACHMENT_SYS_ID>/false"
+```
+
+**Verify install:**
+```bash
+# Should return the bot record
+curl -u admin:password \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_provider_application?sysparm_query=nameLIKE<BOT_NAME>&sysparm_fields=sys_id,name,active"
+```
+
+**Set topic roles via REST:**
+```bash
+# Update sys_cs_topic roles
+curl -u admin:password -X PATCH \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cs_topic/<TOPIC_SYS_ID>" \
+  -H "Content-Type: application/json" \
+  -d '{"roles":"public"}'
+# Update sys_cb_topic roles (the underlying conversation builder topic)
+curl -u admin:password -X PATCH \
+  "https://<INSTANCE>.service-now.com/api/now/table/sys_cb_topic/<CB_TOPIC_SYS_ID>" \
+  -H "Content-Type: application/json" \
+  -d '{"roles":"public"}'
+# IMPORTANT: You must still republish from VA Designer for roles to take effect
+```
+
+**Clean up before reinstall (if needed):**
+```bash
+# Find and delete conflicting records - check each table for entries matching your bot name or SA emails
+for TABLE in sys_cs_provider_application provider_auth oauth_oidc_entity oidc_provider_configuration jwt_keystore_aliases; do
+  echo "=== $TABLE ==="
+  curl -s -u admin:password \
+    "https://<INSTANCE>.service-now.com/api/now/table/$TABLE?sysparm_query=nameLIKE<BOT_NAME>&sysparm_fields=sys_id,name"
+done
+```
+
 ### .env File
 Store instance-specific values locally (do not commit):
 ```
