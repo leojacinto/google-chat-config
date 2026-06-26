@@ -122,7 +122,7 @@ The native adapter creates Guest consumers by default. The `sys_cs_channel_user_
 - Use `va_gchat_debug_log` system property for custom debug logging
 
 ### Do NOT
-- **NEVER** query `syslog` / `sys_log` - it freezes the instance
+- **NEVER** query `syslog` / `sys_log` - it freezes the session especially for large and busy instances
 - Don't guess table names - verify with `sys_db_object` first
 - Don't chase language issues (disproven: NLU runs with `language=en`)
 - Don't try to write `published_definition` directly - it's computed on publish
@@ -135,24 +135,6 @@ The native adapter creates Guest consumers by default. The `sys_cs_channel_user_
 | REST writes silently fail | Scoped table protection | Use GlideRecord via scoped scripted REST op |
 | `installGoogleChatCustomBot` errors | Leftover records from previous install | Delete all related oauth/oidc/jwt/provider records first |
 | "not responding" in Google Chat | Add-on checkbox unchecked in GCP | Check "Build as Workspace add-on" in GCP Chat API config |
-
----
-
-## Custom Objects (deactivated, native stack replaces these)
-These were part of the original custom integration and are now **inactive**:
-
-| Object | sys_id | Status |
-|--------|--------|--------|
-| Custom inbound endpoint | *(search sys_ws_operation)* | **Inactive** |
-| Outbound delivery BR | *(search sys_script)* | **Inactive** |
-| Script actions (send_message) | *(search sysevent_script_action)* | **Inactive** |
-| NLU-Keyword context profile | *(search sys_cs_context_profile)* | **Inactive** |
-
-Do NOT reactivate these unless reverting to the custom stack.
-
-### Backup
-Full backup of pre-pivot configuration: `../backup-marketplace-pivot/`
-Restore script: `../backup-marketplace-pivot/RESTORE.sh`
 
 ---
 
