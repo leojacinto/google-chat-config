@@ -3,6 +3,9 @@
 ## What This Is
 Google Chat bot connected to ServiceNow Virtual Agent using the **native `sn_va_google_chat` plugin** and the **Now Virtual Agent** Marketplace app.
 
+## Credit
+This guide started from Amit Verma's blog post, [How to integrate ServiceNow Now Assist in Virtual Agent with Google Chat](https://www.servicenow.com/community/developer-blog/how-to-integrate-servicenow-now-assist-in-virtual-agent-with/ba-p/3490624). The steps below add what wasn't covered there — REST-only fallbacks for the broken setup UI, topic/role configuration, account linking, and troubleshooting — based on hands-on setup and debugging.
+
 ---
 
 ## Prerequisites (done once, do not redo)
