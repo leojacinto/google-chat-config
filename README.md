@@ -188,7 +188,7 @@ If the bot was previously pointing to a different SN instance:
 
 ### REST-Only Setup (if you want to skip the UI steps)
 
-The ServiceNow Google Chat setup UI (`All > Virtual Agent > Google Chat Bots`) is broken on some instances. Everything can be done via REST instead.
+As an alternative to the ServiceNow Google Chat setup UI (`All > Virtual Agent > Google Chat Bots`), everything can be done via REST instead.
 
 **Upload P12 key:**
 ```bash
@@ -220,7 +220,7 @@ curl -u admin:password \
 
 **Configure VA Channel Integration settings:**
 
-The SN UI at `Conversation > Settings > VA Channel Integrations > Google Chat` may not work. These REST calls cover the same config:
+As an alternative to the SN UI at `Conversation > Settings > VA Channel Integrations > Google Chat`, these REST calls cover the same config:
 ```bash
 # Check Google Chat channel is active
 curl -u admin:password \
