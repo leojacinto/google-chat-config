@@ -4,7 +4,7 @@
 Google Chat bot connected to ServiceNow Virtual Agent using the **native `sn_va_google_chat` plugin** and the **Now Virtual Agent** Marketplace app.
 
 ## Credit
-This guide started from Amit Verma's blog post, [How to integrate ServiceNow Now Assist in Virtual Agent with Google Chat](https://www.servicenow.com/community/developer-blog/how-to-integrate-servicenow-now-assist-in-virtual-agent-with/ba-p/3490624). The steps below add what wasn't covered there — REST-only fallbacks for the broken setup UI, topic/role configuration, account linking, and troubleshooting — based on hands-on setup and debugging.
+This guide started from Amit Verma's blog post, [How to integrate ServiceNow Now Assist in Virtual Agent with Google Chat](https://www.servicenow.com/community/developer-blog/how-to-integrate-servicenow-now-assist-in-virtual-agent-with/ba-p/3490624). The steps below add what wasn't covered there: REST-only fallbacks, topic/role configuration, account linking, and troubleshooting based on hands-on setup and debugging.
 
 ---
 
@@ -186,7 +186,7 @@ If the bot was previously pointing to a different SN instance:
 2. On the new SN instance, run `installGoogleChatCustomBot` with the same GCP service accounts
 3. If the install fails with conflicts, delete any existing `sys_cs_provider_application`, `oauth_oidc_entity`, `jwt_keystore_aliases`, `oidc_provider_configuration`, and `provider_auth` records that reference the old bot name or service accounts
 
-### REST-Only Setup (when the SN Workspace UI doesn't work)
+### REST-Only Setup (if you want to skip the UI steps)
 
 The ServiceNow Google Chat setup UI (`All > Virtual Agent > Google Chat Bots`) is broken on some instances. Everything can be done via REST instead.
 
